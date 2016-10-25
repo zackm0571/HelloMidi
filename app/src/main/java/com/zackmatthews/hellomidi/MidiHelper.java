@@ -4,8 +4,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.DataSetObserver;
+import android.media.midi.MidiDevice;
 import android.media.midi.MidiDeviceInfo;
 import android.media.midi.MidiManager;
+import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,18 +16,42 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 
 /**
- * Created by zachmathews on 10/24/16.
+ * Created by zackmathews on 10/24/16.
  */
-public class MidiHelper {
+public class MidiHelper extends MidiManager.DeviceCallback{
+    private static final String DEVICE_CONNECTED_EVENT="Status: Found new device";
+    private static final String DEVICE_OPENED_EVENT="Status: Connected to %s";
+    private static final String DEVICE_REMOVED_EVENT="Status: Disconnected, please re-connect your device";
+    public interface MidiHelperEventListener{
+        public void onMidiHelperStatusEvent(String statusText);
+    }
 
-    private static MidiManager midiManager;
+    private static MidiHelper midiHelper;
+    private MidiManager midiManager;
+    private AlertDialog devicePickerDialog;
+    private Context context;
+    private MidiHelperEventListener midiHelperEventListener;
+    private MidiManager.OnDeviceOpenedListener onDeviceOpenedListener;
 
-    public static void presentDevices(final Context context){
-        midiManager = getMidiManager(context);
+    public static MidiHelper instance(Context context){
+        if(midiHelper == null){ midiHelper = new MidiHelper(); }
+        midiHelper.context = context;
+        return midiHelper;
+    }
+
+    public void registerMidiHelperEventListener(MidiHelperEventListener listener){
+        this.midiHelperEventListener = listener;
+        midiHelper.getMidiManager().registerDeviceCallback(midiHelper, new Handler());
+    }
+
+    public void presentDevices(){
+        midiManager = getMidiManager();
 
         if(midiManager == null) return;
+        if(devicePickerDialog != null && devicePickerDialog.isShowing()) devicePickerDialog.dismiss();
+
         final MidiDeviceInfo[] devices = getDevices(midiManager);
-        AlertDialog dialog = new AlertDialog.Builder(context).setAdapter(new ListAdapter() {
+        devicePickerDialog = new AlertDialog.Builder(context).setAdapter(new ListAdapter() {
             @Override
             public boolean areAllItemsEnabled() {
                 return true;
@@ -95,21 +122,75 @@ public class MidiHelper {
         }, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                connectToDevice(devices[which], getOnDeviceOpenedListener(), new Handler());
             }
         }).create();
-        dialog.show();
+        devicePickerDialog.show();
     }
 
-    public static MidiDeviceInfo[] getDevices(MidiManager midiManager){
+    public void connectToDevice(MidiDeviceInfo info, MidiManager.OnDeviceOpenedListener listener, Handler handler){
+        getMidiManager().openDevice(info, listener, handler);
+    }
+
+    public  MidiDeviceInfo[] getDevices(MidiManager midiManager){
         if(midiManager == null) return null;
         return midiManager.getDevices();
     }
-    public static MidiManager getMidiManager(Context context) {
+    public MidiManager getMidiManager() {
         if(midiManager == null && context != null){
             midiManager = (MidiManager)context.getSystemService(Context.MIDI_SERVICE);
         }
         return midiManager;
     }
 
+    @Override
+    public void onDeviceAdded(MidiDeviceInfo device) {
+        super.onDeviceAdded(device);
+        presentDevices();
+
+        sendStatusEvent(DEVICE_CONNECTED_EVENT);
+    }
+
+    @Override
+    public void onDeviceRemoved(MidiDeviceInfo device) {
+        super.onDeviceRemoved(device);
+        if(getDevices(getMidiManager()).length > 0) {
+            presentDevices();
+        }
+        else if(devicePickerDialog != null && devicePickerDialog.isShowing()){
+            devicePickerDialog.dismiss();
+        }
+
+        sendStatusEvent(DEVICE_REMOVED_EVENT);
+    }
+
+    protected void sendStatusEvent(String statusEvent){
+        if(midiHelperEventListener != null){
+            midiHelperEventListener.onMidiHelperStatusEvent(statusEvent);
+        }
+    }
+
+    public MidiManager.OnDeviceOpenedListener getOnDeviceOpenedListener() {
+        if(onDeviceOpenedListener == null){
+            onDeviceOpenedListener = new MidiManager.OnDeviceOpenedListener() {
+                @Override
+                public void onDeviceOpened(MidiDevice device) {
+                    String deviceName = "Generic Midi Device";
+                    MidiDeviceInfo info = device.getInfo();
+                    if(info != null){
+                        Bundle properties = info.getProperties();
+                        if(properties != null){
+                            deviceName = properties.getString(MidiDeviceInfo.PROPERTY_PRODUCT, deviceName);
+                        }
+                    }
+                    sendStatusEvent(String.format(DEVICE_OPENED_EVENT, deviceName));
+                }
+            };
+        }
+        return onDeviceOpenedListener;
+    }
+
+    public void setOnDeviceOpenedListener(MidiManager.OnDeviceOpenedListener onDeviceOpenedListener) {
+        this.onDeviceOpenedListener = onDeviceOpenedListener;
+    }
 }

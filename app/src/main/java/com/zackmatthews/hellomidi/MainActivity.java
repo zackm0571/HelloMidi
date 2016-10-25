@@ -8,9 +8,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
-
+public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHelperEventListener{
+    private TextView statusTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,9 +23,18 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MidiHelper.presentDevices(MainActivity.this);
+                MidiHelper.instance(MainActivity.this).presentDevices();
             }
         });
+
+        MidiHelper.instance(MainActivity.this).registerMidiHelperEventListener(this);
+
+        statusTextView = (TextView)findViewById(R.id.statusText);
+    }
+
+    @Override
+    public void onMidiHelperStatusEvent(String statusText) {
+        statusTextView.setText(statusText);
     }
 
     @Override
@@ -36,16 +46,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }
