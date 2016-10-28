@@ -3,6 +3,7 @@ package com.zackmatthews.hellomidi;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -79,6 +80,8 @@ public class IntentMapperActivity extends Activity {
     };
 
     private ListView mIntentListView;
+    private Context mContext;
+
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring behavior of controls going away
@@ -100,18 +103,10 @@ public class IntentMapperActivity extends Activity {
 
         setContentView(R.layout.activity_intent_mapper);
 
+        mContext = this;
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
-
-
-        // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
@@ -136,6 +131,7 @@ public class IntentMapperActivity extends Activity {
                 mIntentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
                 Log.i("Clicked", appInfos.get(position).appname + "::" + appInfos.get(position).pname);
+                MidiHelper.instance(mContext).pickNote(appInfos.get(position).pname);
 
             }
         });
