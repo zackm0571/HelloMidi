@@ -5,11 +5,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by zackmatthews on 10/28/16.
@@ -17,6 +22,7 @@ import java.util.List;
 
 public class EventTriggerHelper {
     public static final String LAUNCH_APP_KEY_PREFIX="la-";
+    public static final String TASKER_TASK_KEY_PREFIX="tskr-";
     public static final String LAUNCH_APP_EVENT_TRIGGER = "Launching... ";
     public static final int NOTE_ON=-112;
     public static final int EMPTY=-8;
@@ -59,6 +65,27 @@ public class EventTriggerHelper {
         return res;
     }
 
+    public void getTaskerTasks(Context context){
+        Cursor c = context.getContentResolver().query( Uri.parse( "content://net.dinglisch.android.tasker/tasks" ), null, null, null, null );
+
+        if ( c != null ) {
+            int nameCol = c.getColumnIndex( "name" );
+            int projNameCol = c.getColumnIndex( "project_name" );
+
+            while ( c.moveToNext() )
+                Log.d( TAG,  c.getString( projNameCol ) + "/" + c.getString( nameCol ) );
+
+            c.close();
+        }
+    }
+
+//    public void launchTaskerEvent(){
+//        if ( TaskerIntent.testStatus( this ).equals( TaskerIntent.Status.OK ) ) {
+//            TaskerIntent i = new TaskerIntent( "MY_USER_TASK_NAME" );
+//            sendBroadcast( i );
+//        }
+//    }
+
     /** Open another app.
      * @param context current Context, like Activity, App, or Service
      * @param packageName the full package name of the app to open
@@ -79,15 +106,19 @@ public class EventTriggerHelper {
         }
     }
 
-    public void evaluateInputEvent(int note){
-        Context context = AppHelper.instance.getApplicationContext();
+    public void evaluateInputEvent(Context context, int note){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         String action = pref.getString(String.valueOf(note), NULL_MAPPING);
         if(action.equals(NULL_MAPPING)) return;
 
         if(action.startsWith(LAUNCH_APP_KEY_PREFIX) && action.split("-").length > 1){
             action = action.split("-")[1];
-            openApp(AppHelper.instance.getApplicationContext(), action);
+            openApp(context, action);
+        }
+
+        else if(action.startsWith(TASKER_TASK_KEY_PREFIX) && action.split("-").length > 1){
+            TaskerIntent i = new TaskerIntent( "Test" );
+            context.sendBroadcast( i );
         }
     }
 }

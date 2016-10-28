@@ -196,7 +196,7 @@ public class MidiHelper extends MidiManager.DeviceCallback{
                     for(MidiDeviceInfo.PortInfo portInfo: ports){
                         if(portInfo.getType() == MidiDeviceInfo.PortInfo.TYPE_OUTPUT){
                             MidiOutputPort port = device.openOutputPort(portInfo.getPortNumber());
-                            port.connect(new SimpleReceiver(midiHelperEventListener));
+                            port.connect(new SimpleReceiver(context, midiHelperEventListener));
                         }
                     }
 
