@@ -28,7 +28,7 @@ public class MidiMapperHelper {
     public String getActionForMidiVal(Context context, int note){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         if(pref == null) return "";
-        return pref.getString(String.valueOf(note), "<null>");
+        return pref.getString(String.valueOf(note), EventTriggerHelper.NULL_MAPPING);
     }
 
 }

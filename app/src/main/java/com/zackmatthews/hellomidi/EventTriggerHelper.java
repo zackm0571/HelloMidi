@@ -2,9 +2,11 @@ package com.zackmatthews.hellomidi;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +16,12 @@ import java.util.List;
  */
 
 public class EventTriggerHelper {
+    public static final String LAUNCH_APP_KEY_PREFIX="la-";
     public static final String LAUNCH_APP_EVENT_TRIGGER = "Launching... ";
     public static final int NOTE_ON=-112;
     public static final int EMPTY=-8;
+    public static final String NULL_MAPPING="<null>";
+
     private static EventTriggerHelper helper;
 
     public static EventTriggerHelper instance(){
@@ -71,6 +76,18 @@ public class EventTriggerHelper {
             return true;
         } catch (Throwable e) {
             return false;
+        }
+    }
+
+    public void evaluateInputEvent(int note){
+        Context context = AppHelper.instance.getApplicationContext();
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        String action = pref.getString(String.valueOf(note), NULL_MAPPING);
+        if(action.equals(NULL_MAPPING)) return;
+
+        if(action.startsWith(LAUNCH_APP_KEY_PREFIX) && action.split("-").length > 1){
+            action = action.split("-")[1];
+            openApp(AppHelper.instance.getApplicationContext(), action);
         }
     }
 }

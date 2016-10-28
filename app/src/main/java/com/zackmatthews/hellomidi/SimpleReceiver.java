@@ -20,9 +20,10 @@ public class SimpleReceiver extends MidiReceiver {
         if(msg[offset] != EventTriggerHelper.EMPTY && count > 1) {
             mListener.onMidiHelperStatusEvent(String.format(debug_msg, msg[offset+1], offset, count, timestamp));
         }
+        EventTriggerHelper.instance().evaluateInputEvent(msg[offset]);
 
-        if(msg[offset] == EventTriggerHelper.NOTE_ON) { //NOTE_ON event
-            mListener.onMidiHelperStatusEvent(EventTriggerHelper.LAUNCH_APP_EVENT_TRIGGER);
-        }
+//        if(msg[offset] == EventTriggerHelper.NOTE_ON) { //NOTE_ON event
+//            mListener.onMidiHelperStatusEvent(EventTriggerHelper.LAUNCH_APP_EVENT_TRIGGER);
+//        }
     }
 }
