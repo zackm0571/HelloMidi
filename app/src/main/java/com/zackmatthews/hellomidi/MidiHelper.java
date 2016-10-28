@@ -45,6 +45,10 @@ public class MidiHelper extends MidiManager.DeviceCallback{
         midiHelper.getMidiManager().registerDeviceCallback(midiHelper, new Handler());
     }
 
+    public void presentMidiMapper(){
+
+    }
+
     public void presentDevices(){
         midiManager = getMidiManager();
 

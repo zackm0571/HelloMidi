@@ -13,6 +13,9 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHelperEventListener{
     private TextView statusTextView;
     private ScrollView scrollView;
+
+    private View.OnClickListener connectToDeviceClickEvent, openMidiMapperClickEvent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,12 +24,19 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        connectToDeviceClickEvent = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 MidiHelper.instance(MainActivity.this).presentDevices();
             }
-        });
+        };
+        openMidiMapperClickEvent = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        };
+        fab.setOnClickListener(connectToDeviceClickEvent);
 
         MidiHelper.instance(MainActivity.this).registerMidiHelperEventListener(this);
 
