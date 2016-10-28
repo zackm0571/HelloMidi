@@ -41,6 +41,10 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
             public void run() {
                 statusTextView.append("\n" + statusText + "\n");
                 scrollView.fullScroll(View.FOCUS_DOWN);
+
+                if(statusText.contains(EventTriggerHelper.LAUNCH_APP_EVENT_TRIGGER)){
+                    EventTriggerHelper.instance().openApp(MainActivity.this, "com.google.android.talk");
+                }
             }
         });
 
