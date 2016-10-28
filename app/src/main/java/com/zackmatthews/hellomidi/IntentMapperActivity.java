@@ -135,7 +135,7 @@ public class IntentMapperActivity extends Activity {
         mIntentListView.setAdapter(arrayAdapter);
                 mIntentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-                Log.i("Clicked", appInfos.get(position).appname);
+                Log.i("Clicked", appInfos.get(position).appname + "::" + appInfos.get(position).pname);
 
             }
         });
