@@ -15,7 +15,7 @@ public class SimpleReceiver extends MidiReceiver {
     }
     @Override
     public void onSend(byte[] msg, int offset, int count, long timestamp) throws IOException {
-
-        mListener.onMidiHelperStatusEvent("Received onSend event with timestamp: " + String.valueOf(timestamp) );
+        String debug_msg = "Received onSend event with message: %d offset: %d count: %d timestamp: %d";
+        mListener.onMidiHelperStatusEvent(String.format(debug_msg,  msg[offset], offset, count, timestamp));
     }
 }

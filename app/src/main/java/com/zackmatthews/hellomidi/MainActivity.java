@@ -7,10 +7,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHelperEventListener{
     private TextView statusTextView;
+    private ScrollView scrollView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
         MidiHelper.instance(MainActivity.this).registerMidiHelperEventListener(this);
 
         statusTextView = (TextView)findViewById(R.id.statusText);
+        scrollView = (ScrollView)findViewById(R.id.scrollview);
     }
 
     @Override
@@ -36,7 +39,8 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                statusTextView.setText(statusText);
+                statusTextView.append("\n" + statusText + "\n");
+                scrollView.fullScroll(View.FOCUS_DOWN);
             }
         });
 
