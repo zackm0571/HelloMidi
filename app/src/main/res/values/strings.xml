@@ -2,4 +2,7 @@
     <string name="app_name">HelloMidi</string>
     <string name="action_settings">Settings</string>
     <string name="default_status_text">Status: Waiting on MIDI device</string>
+    <string name="title_activity_intent_mapper">IntentMapperActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content"></string>
 </resources>

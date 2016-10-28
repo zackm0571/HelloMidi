@@ -10,6 +10,7 @@ import android.media.midi.MidiManager;
 import android.media.midi.MidiOutputPort;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -212,4 +213,86 @@ public class MidiHelper extends MidiManager.DeviceCallback{
     public void setOnDeviceOpenedListener(MidiManager.OnDeviceOpenedListener onDeviceOpenedListener) {
         this.onDeviceOpenedListener = onDeviceOpenedListener;
     }
+
+    public void pickNote(String packageName){
+        final String[] notes = new String[]{"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"};
+
+        devicePickerDialog = new AlertDialog.Builder(context).setAdapter(new ListAdapter() {
+            @Override
+            public boolean areAllItemsEnabled() {
+                return true;
+            }
+
+            @Override
+            public boolean isEnabled(int position) {
+                return true;
+            }
+
+            @Override
+            public void registerDataSetObserver(DataSetObserver observer) {
+
+            }
+
+            @Override
+            public void unregisterDataSetObserver(DataSetObserver observer) {
+
+            }
+
+            @Override
+            public int getCount() {
+                return 12;
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return notes[position];
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return 0;
+            }
+
+            @Override
+            public boolean hasStableIds() {
+                return false;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                if(convertView == null){
+                    LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    if(inflater != null) {
+                        convertView = inflater.inflate(android.R.layout.simple_list_item_1, null);
+                        TextView text = (TextView)convertView.findViewById(android.R.id.text1);
+                        text.setText(notes[position]);
+                    }
+                }
+                return convertView;
+            }
+
+            @Override
+            public int getItemViewType(int position) {
+                return 0;
+            }
+
+            @Override
+            public int getViewTypeCount() {
+                return 1;
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return false;
+            }
+        }, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // @TODO map the action to the note
+                Log.i("Note selected", notes[which]);
+            }
+        }).create();
+        devicePickerDialog.show();
+    }
+
 }
