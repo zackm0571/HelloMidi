@@ -1,6 +1,7 @@
 package com.zackmatthews.hellomidi;
 
 import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -35,10 +36,12 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
         openMidiMapperClickEvent = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(getApplicationContext(), IntentMapperActivity.class);
+                startActivity(intent);
             }
         };
-        fab.setOnClickListener(connectToDeviceClickEvent);
+        //fab.setOnClickListener(connectToDeviceClickEvent);
+        fab.setOnClickListener(openMidiMapperClickEvent);
 
         MidiHelper.instance(MainActivity.this).registerMidiHelperEventListener(this);
 
