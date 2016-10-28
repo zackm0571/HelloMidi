@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
         connectToDeviceClickEvent = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                EventTriggerHelper.instance().getTaskerTasks(MainActivity.this);
                 MidiHelper.instance(MainActivity.this).presentDevices();
             }
         };

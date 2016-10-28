@@ -65,18 +65,30 @@ public class EventTriggerHelper {
         return res;
     }
 
-    public void getTaskerTasks(Context context){
+    public List<String> getTaskerTasks(Context context){
+        if(!TaskerIntent.taskerInstalled(context)){
+            MidiHelper.instance(context).sendStatusEvent("To utilize tasker please install tasker from the Play Store.");
+        }
+        List<String> tasks = new ArrayList();
         Cursor c = context.getContentResolver().query( Uri.parse( "content://net.dinglisch.android.tasker/tasks" ), null, null, null, null );
 
         if ( c != null ) {
             int nameCol = c.getColumnIndex( "name" );
             int projNameCol = c.getColumnIndex( "project_name" );
 
-            while ( c.moveToNext() )
-                Log.d( TAG,  c.getString( projNameCol ) + "/" + c.getString( nameCol ) );
-
+            while ( c.moveToNext() ) {
+                String name = c.getString(nameCol);
+                Log.d(TAG, c.getString(projNameCol) + "/" + c.getString(nameCol));
+                MidiHelper.instance(context).sendStatusEvent(c.getString(nameCol));
+                tasks.add(name);
+            }
             c.close();
         }
+
+        if(tasks.size() == 0){
+            MidiHelper.instance(context).sendStatusEvent("No tasker tasks found");
+        }
+        return tasks;
     }
 
 //    public void launchTaskerEvent(){
@@ -117,7 +129,7 @@ public class EventTriggerHelper {
         }
 
         else if(action.startsWith(TASKER_TASK_KEY_PREFIX) && action.split("-").length > 1){
-            TaskerIntent i = new TaskerIntent( "Test" );
+            TaskerIntent i = new TaskerIntent( action.split("-")[1]);
             context.sendBroadcast( i );
         }
     }
