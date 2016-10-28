@@ -7,6 +7,7 @@ import android.database.DataSetObserver;
 import android.media.midi.MidiDevice;
 import android.media.midi.MidiDeviceInfo;
 import android.media.midi.MidiManager;
+import android.media.midi.MidiOutputPort;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -23,7 +24,7 @@ public class MidiHelper extends MidiManager.DeviceCallback{
     private static final String DEVICE_OPENED_EVENT="Status: Connected to %s";
     private static final String DEVICE_REMOVED_EVENT="Status: Disconnected, please re-connect your device";
     public interface MidiHelperEventListener{
-        public void onMidiHelperStatusEvent(String statusText);
+        public void onMidiHelperStatusEvent(final String statusText);
     }
 
     private static MidiHelper midiHelper;
@@ -184,6 +185,13 @@ public class MidiHelper extends MidiManager.DeviceCallback{
                         }
                     }
                     sendStatusEvent(String.format(DEVICE_OPENED_EVENT, deviceName));
+                    MidiDeviceInfo.PortInfo[] ports = info.getPorts();
+                    for(MidiDeviceInfo.PortInfo portInfo: ports){
+                        if(portInfo.getType() == MidiDeviceInfo.PortInfo.TYPE_OUTPUT){
+                            MidiOutputPort port = device.openOutputPort(portInfo.getPortNumber());
+                            port.connect(new SimpleReceiver(midiHelperEventListener));
+                        }
+                    }
                 }
             };
         }
