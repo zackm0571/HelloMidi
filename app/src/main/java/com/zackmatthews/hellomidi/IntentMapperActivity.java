@@ -3,10 +3,19 @@ package com.zackmatthews.hellomidi;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -68,6 +77,8 @@ public class IntentMapperActivity extends Activity {
             hide();
         }
     };
+
+    private ListView mIntentListView;
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring behavior of controls going away
@@ -106,6 +117,29 @@ public class IntentMapperActivity extends Activity {
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+
+        mIntentListView = (ListView) findViewById(R.id.intent_list);
+        final ArrayList<EventTriggerHelper.AppInfo> appInfos = EventTriggerHelper.instance().getInstalledApps(this);
+
+        // Create a List from String Array elements
+        /*List<String> appsList = new ArrayList<String>();
+        for(EventTriggerHelper.AppInfo info:appInfos) {
+            appsList.add(info.appname);
+        }*/
+
+        // Create an ArrayAdapter from List
+        final ArrayAdapter<EventTriggerHelper.AppInfo> arrayAdapter = new AppInfoAdapter
+                (this, R.layout.intent_list_item_row, appInfos);
+
+        // DataBind ListView with items from ArrayAdapter
+        mIntentListView.setAdapter(arrayAdapter);
+                mIntentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+                Log.i("Clicked", appInfos.get(position).appname);
+
+            }
+        });
+
     }
 
     @Override
