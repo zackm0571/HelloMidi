@@ -20,20 +20,23 @@ import android.widget.TextView;
  * Created by zackmathews on 10/24/16.
  */
 public class MidiHelper extends MidiManager.DeviceCallback{
+    private static MidiHelper midiHelper;
+
+    public interface MidiHelperEventListener{
+        public void onMidiHelperStatusEvent(final String statusText);
+        public void onDeviceStateChange(boolean isConnected);
+    }
+
     private static final String DEVICE_CONNECTED_EVENT="Status: Found new device";
     private static final String DEVICE_OPENED_EVENT="Status: Connected to %s";
     private static final String DEVICE_REMOVED_EVENT="Status: Disconnected, please re-connect your device";
-    public interface MidiHelperEventListener{
-        public void onMidiHelperStatusEvent(final String statusText);
-    }
 
-    private static MidiHelper midiHelper;
     private MidiManager midiManager;
     private AlertDialog devicePickerDialog;
     private Context context;
     private MidiHelperEventListener midiHelperEventListener;
     private MidiManager.OnDeviceOpenedListener onDeviceOpenedListener;
-
+    private MidiDeviceInfo connectedDevice;
     public static MidiHelper instance(Context context){
         if(midiHelper == null){ midiHelper = new MidiHelper(); }
         midiHelper.context = context;
@@ -152,20 +155,18 @@ public class MidiHelper extends MidiManager.DeviceCallback{
     public void onDeviceAdded(MidiDeviceInfo device) {
         super.onDeviceAdded(device);
         presentDevices();
-
         sendStatusEvent(DEVICE_CONNECTED_EVENT);
     }
 
     @Override
     public void onDeviceRemoved(MidiDeviceInfo device) {
         super.onDeviceRemoved(device);
-        if(getDevices(getMidiManager()).length > 0) {
-            presentDevices();
+        if(device.equals(connectedDevice)){
+            connectedDevice = null;
+            if(midiHelperEventListener != null){
+                midiHelperEventListener.onDeviceStateChange(false);
+            }
         }
-        else if(devicePickerDialog != null && devicePickerDialog.isShowing()){
-            devicePickerDialog.dismiss();
-        }
-
         sendStatusEvent(DEVICE_REMOVED_EVENT);
     }
 
@@ -180,6 +181,7 @@ public class MidiHelper extends MidiManager.DeviceCallback{
             onDeviceOpenedListener = new MidiManager.OnDeviceOpenedListener() {
                 @Override
                 public void onDeviceOpened(MidiDevice device) {
+                    connectedDevice = device.getInfo();
                     String deviceName = "Generic Midi Device";
                     MidiDeviceInfo info = device.getInfo();
                     if(info != null){
@@ -188,6 +190,7 @@ public class MidiHelper extends MidiManager.DeviceCallback{
                             deviceName = properties.getString(MidiDeviceInfo.PROPERTY_PRODUCT, deviceName);
                         }
                     }
+
                     sendStatusEvent(String.format(DEVICE_OPENED_EVENT, deviceName));
                     MidiDeviceInfo.PortInfo[] ports = info.getPorts();
                     for(MidiDeviceInfo.PortInfo portInfo: ports){
@@ -195,6 +198,10 @@ public class MidiHelper extends MidiManager.DeviceCallback{
                             MidiOutputPort port = device.openOutputPort(portInfo.getPortNumber());
                             port.connect(new SimpleReceiver(midiHelperEventListener));
                         }
+                    }
+
+                    if(midiHelperEventListener != null){
+                        midiHelperEventListener.onDeviceStateChange(true);
                     }
                 }
             };

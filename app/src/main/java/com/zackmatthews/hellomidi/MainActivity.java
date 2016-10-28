@@ -1,5 +1,6 @@
 package com.zackmatthews.hellomidi;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHelperEventListener{
     private TextView statusTextView;
     private ScrollView scrollView;
-
+    private FloatingActionButton fab;
     private View.OnClickListener connectToDeviceClickEvent, openMidiMapperClickEvent;
 
     @Override
@@ -23,7 +24,8 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setBackgroundColor(Color.RED);
         connectToDeviceClickEvent = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,7 +59,18 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
                 }
             }
         });
+    }
 
+    @Override
+    public void onDeviceStateChange(boolean isConnected) {
+        if(isConnected){
+            fab.setOnClickListener(openMidiMapperClickEvent);
+            fab.setBackgroundColor(Color.GREEN);
+        }
+        else{
+            fab.setOnClickListener(connectToDeviceClickEvent);
+            fab.setBackgroundColor(Color.RED);
+        }
     }
 
     @Override
