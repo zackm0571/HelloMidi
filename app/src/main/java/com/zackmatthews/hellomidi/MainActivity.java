@@ -1,7 +1,8 @@
 package com.zackmatthews.hellomidi;
 
-import android.graphics.Color;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
         setSupportActionBar(toolbar);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setBackgroundColor(Color.RED);
+        fab.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         connectToDeviceClickEvent = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -41,8 +42,8 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
                 startActivity(intent);
             }
         };
-        //fab.setOnClickListener(connectToDeviceClickEvent);
-        fab.setOnClickListener(openMidiMapperClickEvent);
+        fab.setOnClickListener(connectToDeviceClickEvent);
+
 
         MidiHelper.instance(MainActivity.this).registerMidiHelperEventListener(this);
 
@@ -69,11 +70,12 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
     public void onDeviceStateChange(boolean isConnected) {
         if(isConnected){
             fab.setOnClickListener(openMidiMapperClickEvent);
-            fab.setBackgroundColor(Color.GREEN);
+
+            fab.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
         else{
             fab.setOnClickListener(connectToDeviceClickEvent);
-            fab.setBackgroundColor(Color.RED);
+            fab.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         }
     }
 
