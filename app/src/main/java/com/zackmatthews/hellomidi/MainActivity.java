@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements MidiHelper.MidiHe
     public void onDeviceStateChange(boolean isConnected) {
         if(isConnected){
             fab.setOnClickListener(openMidiMapperClickEvent);
-
             fab.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
         else{
