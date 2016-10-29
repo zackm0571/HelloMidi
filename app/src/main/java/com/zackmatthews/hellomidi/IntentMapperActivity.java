@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -15,8 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -132,7 +129,6 @@ public class IntentMapperActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
                 Log.i("Clicked", appInfos.get(position).appname + "::" + appInfos.get(position).pname);
                 MidiHelper.instance(mContext).pickNote(appInfos.get(position).pname);
-
             }
         });
 

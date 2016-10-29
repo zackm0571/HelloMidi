@@ -22,7 +22,9 @@ import android.widget.TextView;
  */
 public class MidiHelper extends MidiManager.DeviceCallback{
     private static MidiHelper midiHelper;
-
+    public static final int STATE_MIDI_ASSIGNMENT=10;
+    public static final int STATE_MIDI_LISTENING=11;
+    public static int STATE = STATE_MIDI_LISTENING;
     public interface MidiHelperEventListener{
         public void onMidiHelperStatusEvent(final String statusText);
         public void onDeviceStateChange(boolean isConnected);
@@ -214,10 +216,42 @@ public class MidiHelper extends MidiManager.DeviceCallback{
         this.onDeviceOpenedListener = onDeviceOpenedListener;
     }
 
-    public void pickNote(String packageName){
-        final String[] notes = new String[]{"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"};
+    public void updateNotePicker(){
+        if(devicePickerDialog != null && STATE == STATE_MIDI_ASSIGNMENT){
+            devicePickerDialog.getListView().post(new Runnable() {
+                @Override
+                public void run() {
+                    devicePickerDialog.onContentChanged();
+                    devicePickerDialog.getListView().setAdapter(getMidiNoteAdapter());
+                }
+            });
 
-        devicePickerDialog = new AlertDialog.Builder(context).setAdapter(new ListAdapter() {
+        }
+    }
+    public void pickNote(final String actionName){
+        STATE = STATE_MIDI_ASSIGNMENT;
+
+        devicePickerDialog = new AlertDialog.Builder(context).setAdapter(getMidiNoteAdapter() , new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // @TODO map the action to the note
+                String note = SimpleReceiver.getmLastNotesPressed().peek();
+                Log.i("Note selected", note);
+                STATE = STATE_MIDI_LISTENING;
+                MidiMapperHelper.instance().storeMidiMapping(context, actionName, Integer.parseInt(note));
+            }
+        }).create();
+        devicePickerDialog.show();
+        devicePickerDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                STATE = STATE_MIDI_LISTENING;
+            }
+        });
+    }
+
+    public ListAdapter getMidiNoteAdapter() {
+        return new ListAdapter() {
             @Override
             public boolean areAllItemsEnabled() {
                 return true;
@@ -240,12 +274,12 @@ public class MidiHelper extends MidiManager.DeviceCallback{
 
             @Override
             public int getCount() {
-                return 12;
+                return 1;
             }
 
             @Override
             public Object getItem(int position) {
-                return notes[position];
+                return SimpleReceiver.getmLastNotesPressed().peek();
             }
 
             @Override
@@ -260,14 +294,20 @@ public class MidiHelper extends MidiManager.DeviceCallback{
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                if(convertView == null){
-                    LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    if(inflater != null) {
-                        convertView = inflater.inflate(android.R.layout.simple_list_item_1, null);
-                        TextView text = (TextView)convertView.findViewById(android.R.id.text1);
-                        text.setText(notes[position]);
+
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                if (inflater != null) {
+                    convertView = inflater.inflate(android.R.layout.simple_list_item_1, null);
+                    TextView text = (TextView) convertView.findViewById(android.R.id.text1);
+
+                    String noteText = "Press a key on your midi device";
+
+                    if (SimpleReceiver.getmLastNotesPressed().size() > 0) {
+                        noteText = SimpleReceiver.getmLastNotesPressed().peek();
                     }
+                    text.setText(noteText);
                 }
+
                 return convertView;
             }
 
@@ -285,14 +325,6 @@ public class MidiHelper extends MidiManager.DeviceCallback{
             public boolean isEmpty() {
                 return false;
             }
-        }, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // @TODO map the action to the note
-                Log.i("Note selected", notes[which]);
-            }
-        }).create();
-        devicePickerDialog.show();
+        };
     }
-
 }
