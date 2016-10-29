@@ -42,6 +42,7 @@ public class EventTriggerHelper {
         String pname = "";
         String versionName = "";
         int versionCode = 0;
+        int mappedKey = 0;
         String taskName = "";
         Drawable icon;
 
@@ -61,6 +62,7 @@ public class EventTriggerHelper {
             newInfo.versionName = p.versionName;
             newInfo.versionCode = p.versionCode;
             newInfo.icon = p.applicationInfo.loadIcon(context.getPackageManager());
+            newInfo.mappedKey = MidiMapperHelper.instance().getMidiValByAction(context, LAUNCH_APP_KEY_PREFIX + newInfo.pname);
             res.add(newInfo);
         }
         return res;
@@ -83,6 +85,7 @@ public class EventTriggerHelper {
                 MidiHelper.instance(context).sendStatusEvent(c.getString(nameCol));
                 AppInfo ai = new AppInfo();
                 ai.taskName = name;
+                ai.mappedKey = MidiMapperHelper.instance().getMidiValByAction(context, TASKER_TASK_KEY_PREFIX + ai.taskName);
                 tasks.add(ai);
             }
             c.close();

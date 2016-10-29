@@ -40,7 +40,6 @@ class AppInfoAdapter extends ArrayAdapter<EventTriggerHelper.AppInfo> {
             holder = new AppInfoHolder();
             holder.imgIcon = (ImageView)row.findViewById(R.id.imgIcon);
             holder.txtTitle = (TextView)row.findViewById(R.id.txtTitle);
-
             row.setTag(holder);
         }
         else
@@ -50,10 +49,10 @@ class AppInfoAdapter extends ArrayAdapter<EventTriggerHelper.AppInfo> {
 
         EventTriggerHelper.AppInfo ai = data.get(position);
         if(ai.appname != null) {
-            holder.txtTitle.setText(ai.appname);
+            holder.txtTitle.setText(ai.appname + "-" + String.valueOf(ai.mappedKey));
         }
         if(ai.taskName != null){
-            holder.txtTitle.setText(ai.taskName);
+            holder.txtTitle.setText(ai.taskName + "-" + String.valueOf(ai.mappedKey));
         }
         if(ai.icon != null) {
             holder.imgIcon.setImageDrawable(ai.icon);

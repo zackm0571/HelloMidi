@@ -21,14 +21,21 @@ public class MidiMapperHelper {
     public void storeMidiMapping(Context context, String action, int note){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         if(pref == null) return;
-
+        //Todo come up with better hash to easily lookup by either key or val
         pref.edit().putString(String.valueOf(note), action).commit();
+        pref.edit().putInt(action, note).commit();
     }
 
     public String getActionForMidiVal(Context context, int note){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        if(pref == null) return "";
+        if(pref == null) return EventTriggerHelper.NULL_MAPPING;
         return pref.getString(String.valueOf(note), EventTriggerHelper.NULL_MAPPING);
     }
 
+
+    public int getMidiValByAction(Context context, String action){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        if(pref == null) return 0;
+        return pref.getInt(action, 0);
+    }
 }
