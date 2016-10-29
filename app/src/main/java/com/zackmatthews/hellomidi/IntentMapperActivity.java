@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -20,6 +21,10 @@ import java.util.ArrayList;
  * status bar and navigation/system bar) with user interaction.
  */
 public class IntentMapperActivity extends Activity {
+
+    public static final int TYPE_TASKER=10;
+    public static final int TYPE_APPS=11;
+    int TYPE;
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -105,13 +110,19 @@ public class IntentMapperActivity extends Activity {
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
 
+        Intent sender = getIntent();
+        if(sender != null) {
+            this.TYPE =sender.getIntExtra("TYPE", TYPE_TASKER);
+        }
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         mIntentListView = (ListView) findViewById(R.id.intent_list);
-        final ArrayList<EventTriggerHelper.AppInfo> appInfos = EventTriggerHelper.instance().getInstalledApps(this);
+        final ArrayList<EventTriggerHelper.AppInfo> appInfos =
+                (this.TYPE == TYPE_APPS) ?EventTriggerHelper.instance().getInstalledApps(this)
+                : EventTriggerHelper.instance().getTaskerTasks(this);
 
         // Create a List from String Array elements
         /*List<String> appsList = new ArrayList<String>();
@@ -127,8 +138,14 @@ public class IntentMapperActivity extends Activity {
         mIntentListView.setAdapter(arrayAdapter);
                 mIntentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-                Log.i("Clicked", appInfos.get(position).appname + "::" + appInfos.get(position).pname);
-                MidiHelper.instance(mContext).pickNote(appInfos.get(position).pname);
+                if(TYPE == TYPE_APPS){
+                    Log.i("Clicked", appInfos.get(position).appname + "::" + appInfos.get(position).pname);
+                    MidiHelper.instance(mContext).pickNote(EventTriggerHelper.LAUNCH_APP_KEY_PREFIX, appInfos.get(position).pname);
+                }
+                else if(TYPE == TYPE_TASKER){
+                    Log.i("Clicked", appInfos.get(position).taskName);
+                    MidiHelper.instance(mContext).pickNote(EventTriggerHelper.TASKER_TASK_KEY_PREFIX, appInfos.get(position).taskName);
+                }
             }
         });
 

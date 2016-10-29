@@ -42,6 +42,7 @@ public class EventTriggerHelper {
         String pname = "";
         String versionName = "";
         int versionCode = 0;
+        String taskName = "";
         Drawable icon;
 
     }
@@ -65,11 +66,11 @@ public class EventTriggerHelper {
         return res;
     }
 
-    public List<String> getTaskerTasks(Context context){
+    public ArrayList<AppInfo> getTaskerTasks(Context context){
         if(!TaskerIntent.taskerInstalled(context)){
             MidiHelper.instance(context).sendStatusEvent("To utilize tasker please install tasker from the Play Store.");
         }
-        List<String> tasks = new ArrayList();
+        ArrayList<AppInfo> tasks = new ArrayList();
         Cursor c = context.getContentResolver().query( Uri.parse( "content://net.dinglisch.android.tasker/tasks" ), null, null, null, null );
 
         if ( c != null ) {
@@ -80,7 +81,9 @@ public class EventTriggerHelper {
                 String name = c.getString(nameCol);
                 Log.d(TAG, c.getString(projNameCol) + "/" + c.getString(nameCol));
                 MidiHelper.instance(context).sendStatusEvent(c.getString(nameCol));
-                tasks.add(name);
+                AppInfo ai = new AppInfo();
+                ai.taskName = name;
+                tasks.add(ai);
             }
             c.close();
         }

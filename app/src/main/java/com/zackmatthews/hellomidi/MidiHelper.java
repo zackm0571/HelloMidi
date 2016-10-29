@@ -228,7 +228,7 @@ public class MidiHelper extends MidiManager.DeviceCallback{
 
         }
     }
-    public void pickNote(final String actionName){
+    public void pickNote(final String prefix, final String actionName){
         STATE = STATE_MIDI_ASSIGNMENT;
 
         devicePickerDialog = new AlertDialog.Builder(context).setAdapter(getMidiNoteAdapter() , new DialogInterface.OnClickListener() {
@@ -238,7 +238,7 @@ public class MidiHelper extends MidiManager.DeviceCallback{
                 String note = SimpleReceiver.getmLastNotesPressed().peek();
                 Log.i("Note selected", note);
                 STATE = STATE_MIDI_LISTENING;
-                MidiMapperHelper.instance().storeMidiMapping(context, actionName, Integer.parseInt(note));
+                MidiMapperHelper.instance().storeMidiMapping(context, prefix + actionName, Integer.parseInt(note));
             }
         }).create();
         devicePickerDialog.show();

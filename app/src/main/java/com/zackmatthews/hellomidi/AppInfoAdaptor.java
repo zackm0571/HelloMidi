@@ -16,7 +16,6 @@ import java.util.ArrayList;
  */
 
 class AppInfoAdapter extends ArrayAdapter<EventTriggerHelper.AppInfo> {
-
     Context context;
     int layoutResourceId;
     ArrayList<EventTriggerHelper.AppInfo> data = null;
@@ -50,9 +49,15 @@ class AppInfoAdapter extends ArrayAdapter<EventTriggerHelper.AppInfo> {
         }
 
         EventTriggerHelper.AppInfo ai = data.get(position);
-        holder.txtTitle.setText(ai.appname);
-        holder.imgIcon .setImageDrawable(ai.icon);
-
+        if(ai.appname != null) {
+            holder.txtTitle.setText(ai.appname);
+        }
+        if(ai.taskName != null){
+            holder.txtTitle.setText(ai.taskName);
+        }
+        if(ai.icon != null) {
+            holder.imgIcon.setImageDrawable(ai.icon);
+        }
         return row;
     }
 
