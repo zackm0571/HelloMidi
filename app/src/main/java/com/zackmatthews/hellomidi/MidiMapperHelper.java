@@ -22,6 +22,18 @@ public class MidiMapperHelper {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         if(pref == null) return;
         //Todo come up with better hash to easily lookup by either key or val
+        if(pref.contains(action)){
+            String midiVal = String.valueOf(getMidiValByAction(context, action));
+            pref.edit().remove(midiVal).commit();
+            pref.edit().remove(action).commit();
+        }
+
+        if(pref.contains(String.valueOf(note))) {
+            String existingAction = getActionForMidiVal(context, note);
+            pref.edit().remove(String.valueOf(note)).commit();
+            pref.edit().remove(existingAction).commit();
+        }
+
         pref.edit().putString(String.valueOf(note), action).commit();
         pref.edit().putInt(action, note).commit();
     }
