@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by zackmathews on 10/24/16.
@@ -25,6 +26,7 @@ public class MidiHelper extends MidiManager.DeviceCallback{
     public static final int STATE_MIDI_ASSIGNMENT=10;
     public static final int STATE_MIDI_LISTENING=11;
     public static int STATE = STATE_MIDI_LISTENING;
+
     public interface MidiHelperEventListener{
         public void onMidiHelperStatusEvent(final String statusText);
         public void onDeviceStateChange(boolean isConnected);
@@ -239,6 +241,7 @@ public class MidiHelper extends MidiManager.DeviceCallback{
                 Log.i("Note selected", note);
                 STATE = STATE_MIDI_LISTENING;
                 MidiMapperHelper.instance().storeMidiMapping(context, prefix + actionName, Integer.parseInt(note));
+                Toast.makeText(context, "Mapping successful", Toast.LENGTH_SHORT).show();
             }
         }).create();
         devicePickerDialog.show();

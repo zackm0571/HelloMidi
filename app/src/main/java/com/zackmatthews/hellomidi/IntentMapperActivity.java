@@ -1,9 +1,10 @@
 package com.zackmatthews.hellomidi;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class IntentMapperActivity extends Activity {
+public class IntentMapperActivity extends AppCompatActivity {
 
     public static final int TYPE_TASKER=10;
     public static final int TYPE_APPS=11;
@@ -31,8 +32,18 @@ public class IntentMapperActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intent_mapper);
-
         mContext = this;
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.mipmap.back_120x120);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentMapperActivity.this.finish();
+            }
+        });
 
 
         Intent sender = getIntent();
